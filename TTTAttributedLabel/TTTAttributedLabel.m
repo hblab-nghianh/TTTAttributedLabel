@@ -221,7 +221,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
 @property (readwrite, nonatomic, strong) NSArray *linkModels;
 @property (readwrite, nonatomic, strong) TTTAttributedLabelLink *activeLink;
 @property (readwrite, nonatomic, strong) NSArray *accessibilityElements;
-
+@property (nonatomic, copy) NSAttributedString *attributedTextOriginal;//Darshit-Added code here
 - (void) longPressGestureDidFire:(UILongPressGestureRecognizer *)sender;
 @end
 
@@ -807,6 +807,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
                         [truncationString deleteCharactersInRange:NSMakeRange((NSUInteger)(lastLineRange.length - 1), 1)];
                     }
                 }
+                truncationString = [[NSMutableAttributedString alloc] initWithAttributedString:[truncationString attributedSubstringFromRange:NSMakeRange(0, truncationString.length - attributedTruncationString.length)]]; //Darshit-Added code here
                 [truncationString appendAttributedString:attributedTruncationString];
                 CTLineRef truncationLine = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)truncationString);
 
@@ -967,16 +968,16 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
                     runBounds.size.width = width;
                 }
 
-				switch (superscriptStyle) {
-					case 1:
-						runBounds.origin.y -= runAscent * 0.47f;
-						break;
-					case -1:
-						runBounds.origin.y += runAscent * 0.25f;
-						break;
-					default:
-						break;
-				}
+                switch (superscriptStyle) {
+                    case 1:
+                        runBounds.origin.y -= runAscent * 0.47f;
+                        break;
+                    case -1:
+                        runBounds.origin.y += runAscent * 0.25f;
+                        break;
+                    default:
+                        break;
+                }
 
                 // Use text color, or default to black
                 id color = [attributes objectForKey:(id)kCTForegroundColorAttributeName];
@@ -1012,6 +1013,7 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
         return;
     }
 
+    self.attributedTextOriginal = text;
     self.attributedText = text;
     self.activeLink = nil;
 
@@ -1109,12 +1111,12 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
 
 // Fixes crash when loading from a UIStoryboard
 - (UIColor *)textColor {
-	UIColor *color = [super textColor];
-	if (!color) {
-		color = [UIColor blackColor];
-	}
+    UIColor *color = [super textColor];
+    if (!color) {
+        color = [UIColor blackColor];
+    }
 
-	return color;
+    return color;
 }
 
 - (void)setTextColor:(UIColor *)textColor {
@@ -1437,6 +1439,11 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
         
         NSTextCheckingResult *result = self.activeLink.result;
         self.activeLink = nil;
+        //Darshit-Added code here
+        NSAttributedString *attributedTruncationString = self.attributedTruncationToken;
+        if (attributedTruncationString) {
+            [self setAttributedText:self.attributedTextOriginal];
+        }
 
         switch (result.resultType) {
             case NSTextCheckingTypeLink:
@@ -1786,7 +1793,7 @@ afterInheritingLabelAttributesAndConfiguringWithBlock:(NSMutableAttributedString
 
 @end
 
-#pragma mark - 
+#pragma mark -
 
 static inline CGColorRef CGColorRefFromColor(id color) {
     return [color isKindOfClass:[UIColor class]] ? [color CGColor] : (__bridge CGColorRef)color;

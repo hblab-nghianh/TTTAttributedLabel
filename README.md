@@ -1,5 +1,51 @@
 # TTTAttributedLabel
 
+
+
+##[SOLVED]Bug when adding link to truncation attributed string
+
+[CocoaPods](https://cocoapods.org/) is the recommended method of installing `TTTAttributedLabel`. Simply add the following line to your `Podfile`:
+
+```ruby
+
+//Code to setup more label
+lbl.delegate = self;
+lbl.userInteractionEnabled = YES;
+lbl.layer.borderColor = [UIColor redColor].CGColor;
+lbl.layer.borderWidth = 2;
+
+lbl.numberOfLines = 2;
+lbl.lineSpacing = 1.f;
+lbl.attributedTruncationToken = [[NSAttributedString alloc] initWithString:@"[more]"
+                                                                      attributes:@{ NSFontAttributeName : [UIFont boldSystemFontOfSize:12],
+                                                                                    NSForegroundColorAttributeName : [UIColor blueColor],
+                                                                                    NSLinkAttributeName : [NSURL URLWithString:[NSString stringWithFormat:@"http://readmoreclick.com"]] }];
+                                                                                    
+lbl.text = "attributedString or any text here";                                                              
+                                                                                    
+                                                                                 
+                                                                                 
+//Implement Delegate method
+#pragma mark - TTTAttributedLabel Delegate
+- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url
+{
+    NSString* domain = [url host];    
+    if ([domain rangeOfString:@"readmoreclick.com"].location != NSNotFound || [@"readmoreclick.com" rangeOfString:domain].location != NSNotFound)
+    {
+        label.numberOfLines = 0;
+//if you need to put more..less then add attributedTruncationToken again here with less label
+//        if (label.numberOfLines == 2) {
+//            label.numberOfLines = 0;
+//        }else{
+//            label.numberOfLines = 2;
+//        }
+    }    
+}                                                                                 
+                                                                                    
+```
+
+
+
 [![Circle CI](https://circleci.com/gh/TTTAttributedLabel/TTTAttributedLabel.svg?style=svg)](https://circleci.com/gh/TTTAttributedLabel/TTTAttributedLabel) [![Version Status](https://img.shields.io/cocoapods/v/TTTAttributedLabel.svg)](https://cocoapods.org/pods/TTTAttributedLabel) [![codecov](https://codecov.io/gh/TTTAttributedLabel/TTTAttributedLabel/branch/master/graph/badge.svg)](https://codecov.io/gh/TTTAttributedLabel/TTTAttributedLabel) [![license MIT](https://img.shields.io/cocoapods/l/TTTAttributedLabel.svg)](http://opensource.org/licenses/MIT) [![Platform](https://img.shields.io/cocoapods/p/TTTAttributedLabel.svg)](http://cocoadocs.org/docsets/TTTAttributedLabel/)  [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 
