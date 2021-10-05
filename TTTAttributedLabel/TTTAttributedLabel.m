@@ -807,7 +807,12 @@ static inline CGSize CTFramesetterSuggestFrameSizeForAttributedStringWithConstra
                         [truncationString deleteCharactersInRange:NSMakeRange((NSUInteger)(lastLineRange.length - 1), 1)];
                     }
                 }
-                truncationString = [[NSMutableAttributedString alloc] initWithAttributedString:[truncationString attributedSubstringFromRange:NSMakeRange(0, truncationString.length - attributedTruncationString.length)]]; //Darshit-Added code here
+                if (truncationString.length == 0 && attributedTruncationString.length > 0) {
+                    truncationString = attributedTruncationString.mutableCopy;
+                }
+                
+                NSInteger truncationLength = truncationString.length - attributedTruncationString.length;
+                truncationString = [[NSMutableAttributedString alloc] initWithAttributedString:[truncationString attributedSubstringFromRange:NSMakeRange(0, MAX(0, truncationLength))]]; //Darshit-Added code here
                 [truncationString appendAttributedString:attributedTruncationString];
                 CTLineRef truncationLine = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)truncationString);
 
